@@ -120,7 +120,7 @@ export function Contacts() {
 
             <div className="mt-5 sm:mt-6">
               <div className="font-semibold flex items-center gap-2">
-                <MapPin className="h-5 w-5" /> {lang === "kz" ? "Мекенжай" : "Адреса"}
+                <MapPin className="h-5 w-5" /> {lang === "kz" ? "Мекенжай" : "Адрес"}
               </div>
 
               <div className="mt-2 text-sm text-muted space-y-2">
