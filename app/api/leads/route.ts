@@ -1,41 +1,35 @@
-export const runtime = "nodejs";
-
 import { NextResponse } from "next/server";
-import { getDb } from "@/lib/db";
+import { insertLead } from "@/lib/db";
+
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+
     const name = String(body?.name ?? "").trim();
     const whatsapp = String(body?.whatsapp ?? "").trim();
-    const grade = String(body?.grade ?? "").trim();
-    const city = String(body?.city ?? "").trim();
-    const goal = String(body?.goal ?? "").trim();
-    const interest = String(body?.interest ?? "").trim();
-    const lang = String(body?.lang ?? "").trim();
 
     if (!name || !whatsapp) {
-      return NextResponse.json({ ok: false, error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "name and whatsapp are required" },
+        { status: 400 }
+      );
     }
 
-    const db = getDb();
-    const stmt = db.prepare(
-      `INSERT INTO leads (name, grade, city, whatsapp, goal, interest, lang, created_at)
-       VALUES (@name, @grade, @city, @whatsapp, @goal, @interest, @lang, @created_at)`
-    );
-    stmt.run({
+    const created = await insertLead({
       name,
-      grade: grade || null,
-      city: city || null,
       whatsapp,
-      goal: goal || null,
-      interest: interest || null,
-      lang: lang || null,
-      created_at: new Date().toISOString(),
+      grade: body?.grade ? String(body.grade).trim() : null,
+      city: body?.city ? String(body.city).trim() : null,
+      goal: body?.goal ? String(body.goal).trim() : null,
+      interest: body?.interest ? String(body.interest).trim() : null,
+      lang: body?.lang ? String(body.lang).trim() : null,
     });
 
-    return NextResponse.json({ ok: true });
-  } catch (e) {
-    return NextResponse.json({ ok: false, error: "Server error" }, { status: 500 });
+    return NextResponse.json({ ok: true, id: created.id, created_at: created.created_at });
+  } catch (e: any) {
+    console.error("POST /api/leads error:", e);
+    return NextResponse.json({ ok: false, error: "Internal error" }, { status: 500 });
   }
 }

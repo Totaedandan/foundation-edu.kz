@@ -148,7 +148,7 @@ export default function AdminPage() {
         </div>
 
         <div className="mt-4 text-xs text-muted">
-          База хранится локально в файле <code className="text-white/80">/data/foundation.db</code> (SQLite).
+          База лидов: <code className="text-white/80">Vercel Postgres</code>.
         </div>
       </div>
     </div>
