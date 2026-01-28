@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --c-bg: #040B1B;
+  --c-accent: #800020;
+  --c-muted: #B0B0B0;
+  --c-white: #F5F5F5;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  @apply text-white;
+  background:
+    radial-gradient(1200px 700px at 50% 0%, rgba(245, 245, 245, 0.07), transparent 60%),
+    radial-gradient(900px 520px at 12% 30%, rgba(128, 0, 32, 0.10), transparent 62%),
+    radial-gradient(900px 520px at 88% 62%, rgba(128, 0, 32, 0.07), transparent 62%),
+    linear-gradient(180deg, #040B1B 0%, #030817 42%, #040B1B 100%);
+}
+
+/* subtle grain/noise overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='220' height='220' filter='url(%23n)' opacity='.4'/></svg>");
+}
+
+/* keep app content above noise */
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: rgba(128, 0, 32, 0.35);
+}
+
+.bg-grid {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.07) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+.bg-grid-soft {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(245,245,245,0.10) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+.glass {
+  background: rgba(245, 245, 245, 0.045);
+  border: 0;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
+}
+
+.text-muted {
+  color: var(--c-muted);
+}
+
+.accent {
+  color: var(--c-white);
+  background: rgba(128, 0, 32, 0.18);
+  border: 1px solid rgba(128, 0, 32, 0.28);
+}
