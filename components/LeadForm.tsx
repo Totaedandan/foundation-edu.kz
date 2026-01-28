@@ -2,107 +2,149 @@
 
 import { useState } from "react";
 import { useLang } from "@/components/lang";
-import { t } from "@/lib/i18n";
-import { motion } from "framer-motion";
 
-type LeadPayload = {
+type FormState = {
   name: string;
   grade: string;
   city: string;
   whatsapp: string;
-  goal: string;
-  interest: string;
-  lang: string;
+  direction: string;
+  program: string;
 };
 
-export function LeadForm({ compact = false }: { compact?: boolean }) {
+export function LeadForm() {
   const { lang } = useLang();
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<"idle" | "ok" | "err">("idle");
-  const [form, setForm] = useState<LeadPayload>({
+  const [ok, setOk] = useState<string | null>(null);
+
+  const [form, setForm] = useState<FormState>({
     name: "",
     grade: "",
     city: "",
     whatsapp: "",
-    goal: "world",
-    interest: "ielts",
-    lang,
+    direction: "foreign",
+    program: "ielts",
   });
 
-  const onChange = (k: keyof LeadPayload, v: string) => {
-    setForm((prev) => ({ ...prev, [k]: v }));
-  };
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus("idle");
+  async function submit() {
     setLoading(true);
+    setOk(null);
     try {
-      const payload: LeadPayload = { ...form, lang };
       const res = await fetch("/api/leads", {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
       });
-      if (!res.ok) throw new Error("bad status");
-      setStatus("ok");
-      setForm({ name: "", grade: "", city: "", whatsapp: "", goal: "world", interest: "ielts", lang });
+      if (!res.ok) throw new Error("bad");
+      setOk(lang === "kz" ? "Өтінім жіберілді!" : "Заявка отправлена!");
+      setForm({
+        name: "",
+        grade: "",
+        city: "",
+        whatsapp: "",
+        direction: "foreign",
+        program: "ielts",
+      });
     } catch {
-      setStatus("err");
+      setOk(lang === "kz" ? "Қате. Қайта көріңіз." : "Ошибка. Попробуйте ещё раз.");
     } finally {
       setLoading(false);
     }
   }
 
-  const inputCls =
-    "w-full rounded-2xl bg-white border border-[#B0B0B0]/60 px-4 py-3 text-[#040B1B] placeholder:text-[#040B1B]/50 outline-none focus:ring-2 focus:ring-[#800020]/25 focus:border-[#800020]/40 transition";
+  const title = lang === "kz" ? "Тегін кеңес алу" : "Бесплатная консультация";
+  const sub =
+    lang === "kz"
+      ? "Өтінім қалдырыңыз — біз сізге хабарласамыз."
+      : "Оставьте заявку — мы свяжемся с вами.";
+
+  const directions =
+    lang === "kz"
+      ? [
+          { v: "foreign", l: "Шетелдік ЖОО" },
+          { v: "nu", l: "Nazarbayev University" },
+          { v: "kz-top", l: "Қазақстанның топ ЖОО" },
+          { v: "idk", l: "Әлі білмеймін" },
+        ]
+      : [
+          { v: "foreign", l: "Зарубежные вузы" },
+          { v: "nu", l: "Nazarbayev University" },
+          { v: "kz-top", l: "Топовые вузы Казахстана" },
+          { v: "idk", l: "Пока не знаю" },
+        ];
 
   return (
-    <div
-      id="lead-form"
-      className={
-        "rounded-3xl p-6 sm:p-7 bg-[#F5F5F5] text-[#040B1B] border border-[#B0B0B0]/35 " +
-        (compact ? "" : "shadow-2xl shadow-black/30")
-      }
-    >
-      <div className="mb-5">
-        <div className="text-lg font-semibold">{t(lang, "form_title")}</div>
-        <div className="text-sm text-[#040B1B]/70 mt-1">{t(lang, "form_sub")}</div>
+    <div id="lead-form" className="glass rounded-3xl p-6">
+      <div className="text-lg font-semibold">{title}</div>
+      <div className="mt-1 text-sm text-muted">{sub}</div>
+
+      <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <input
+          value={form.name}
+          onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
+          placeholder={lang === "kz" ? "Аты" : "Имя"}
+          className="h-11 rounded-2xl bg-white/5 px-4 outline-none border border-white/10 focus:border-white/20"
+        />
+        <input
+          value={form.grade}
+          onChange={(e) => setForm((s) => ({ ...s, grade: e.target.value }))}
+          placeholder={lang === "kz" ? "Сынып" : "Класс"}
+          className="h-11 rounded-2xl bg-white/5 px-4 outline-none border border-white/10 focus:border-white/20"
+        />
+        <input
+          value={form.city}
+          onChange={(e) => setForm((s) => ({ ...s, city: e.target.value }))}
+          placeholder={lang === "kz" ? "Қала" : "Город"}
+          className="h-11 rounded-2xl bg-white/5 px-4 outline-none border border-white/10 focus:border-white/20"
+        />
+        <input
+          value={form.whatsapp}
+          onChange={(e) => setForm((s) => ({ ...s, whatsapp: e.target.value }))}
+          placeholder={lang === "kz" ? "WhatsApp нөмірі" : "WhatsApp номер"}
+          className="h-11 rounded-2xl bg-white/5 px-4 outline-none border border-white/10 focus:border-white/20"
+        />
+
+        <select
+          value={form.direction}
+          onChange={(e) => setForm((s) => ({ ...s, direction: e.target.value }))}
+          className="h-11 rounded-2xl bg-white/5 px-4 outline-none border border-white/10 focus:border-white/20"
+        >
+          {directions.map((d) => (
+            <option key={d.v} value={d.v} className="text-black">
+              {d.l}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={form.program}
+          onChange={(e) => setForm((s) => ({ ...s, program: e.target.value }))}
+          className="h-11 rounded-2xl bg-white/5 px-4 outline-none border border-white/10 focus:border-white/20"
+        >
+          <option value="ielts" className="text-black">
+            IELTS / UKVI
+          </option>
+          <option value="sat" className="text-black">
+            SAT
+          </option>
+          <option value="ap" className="text-black">
+            AP
+          </option>
+          <option value="counseling" className="text-black">
+            {lang === "kz" ? "Кеңес беру / Admission" : "Counseling / Admission"}
+          </option>
+        </select>
       </div>
 
-      <form onSubmit={submit} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <input className={inputCls} value={form.name} onChange={(e) => onChange("name", e.target.value)} placeholder={t(lang, "name")} required />
-        <input className={inputCls} value={form.grade} onChange={(e) => onChange("grade", e.target.value)} placeholder={t(lang, "grade")} />
-        <input className={inputCls} value={form.city} onChange={(e) => onChange("city", e.target.value)} placeholder={t(lang, "city")} />
-        <input className={inputCls} value={form.whatsapp} onChange={(e) => onChange("whatsapp", e.target.value)} placeholder={t(lang, "whatsapp")} required />
+      <button
+        disabled={loading}
+        onClick={submit}
+        className="mt-4 w-full rounded-2xl bg-[#800020] hover:bg-[#6a001b] px-4 py-3 font-semibold transition shadow-lg shadow-black/20 disabled:opacity-60"
+      >
+        {loading ? (lang === "kz" ? "Жіберілуде..." : "Отправка...") : (lang === "kz" ? "Жіберу" : "Отправить")}
+      </button>
 
-        <select className={inputCls} value={form.goal} onChange={(e) => onChange("goal", e.target.value)}>
-          <option value="world">{t(lang, "goal_world")}</option>
-          <option value="kz">{t(lang, "goal_kz")}</option>
-          <option value="unsure">{t(lang, "goal_unsure")}</option>
-        </select>
-
-        <select className={inputCls} value={form.interest} onChange={(e) => onChange("interest", e.target.value)}>
-          <option value="ielts">{t(lang, "interest_ielts")}</option>
-          <option value="sat">{t(lang, "interest_sat")}</option>
-          <option value="ap">{t(lang, "interest_ap")}</option>
-          <option value="research">{t(lang, "interest_research")}</option>
-          <option value="counseling">{t(lang, "interest_counseling")}</option>
-          <option value="english">{t(lang, "interest_english")}</option>
-        </select>
-
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          disabled={loading}
-          className="sm:col-span-2 rounded-2xl bg-[#800020] hover:bg-[#6a001b] disabled:opacity-60 px-4 py-3 font-semibold transition shadow-lg shadow-black/20 text-white"
-          type="submit"
-        >
-          {loading ? "..." : t(lang, "send")}
-        </motion.button>
-
-        {status === "ok" && <div className="sm:col-span-2 text-sm text-emerald-700">{t(lang, "sent_ok")}</div>}
-        {status === "err" && <div className="sm:col-span-2 text-sm text-[#800020]">{t(lang, "sent_err")}</div>}
-      </form>
+      {ok && <div className="mt-3 text-sm text-muted">{ok}</div>}
     </div>
   );
 }

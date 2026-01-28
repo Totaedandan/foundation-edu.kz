@@ -27,7 +27,11 @@ export function Programs() {
   const { lang } = useLang();
 
   return (
-    <section id="programs" className="mx-auto max-w-6xl px-4 py-16">
+    <section id="programs" className="relative mx-auto max-w-6xl px-4 py-12 sm:py-16">
+      {/* мягкие “переходы” сверху/снизу секции */}
+      <div className="pointer-events-none absolute inset-x-0 -top-1 h-16 bg-gradient-to-b from-[#040B1B] via-[#040B1B]/55 to-transparent blur-[1px]" />
+      <div className="pointer-events-none absolute inset-x-0 -bottom-1 h-16 bg-gradient-to-t from-[#040B1B] via-[#040B1B]/55 to-transparent blur-[1px]" />
+
       <Reveal>
         <div className="text-2xl sm:text-3xl font-semibold">
           {t(lang, "programs_title")}
@@ -45,20 +49,25 @@ export function Programs() {
             <Reveal key={p.id} delay={idx * 0.04}>
               <motion.div
                 whileHover={{ y: -4 }}
-                className="glass rounded-3xl p-6 h-full"
+                className="glass rounded-3xl p-4 sm:p-6 h-full"
               >
                 <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="text-lg font-semibold">{p.title}</div>
-                    <div className="text-sm text-muted mt-1">{p.desc}</div>
+                  <div className="min-w-0">
+                    <div className="text-base sm:text-lg font-semibold">
+                      {p.title}
+                    </div>
+
+                    <div className="text-sm text-muted mt-1 line-clamp-2 sm:line-clamp-none">
+                      {p.desc}
+                    </div>
                   </div>
 
-                  <div className="h-11 w-11 rounded-2xl bg-[#800020] shadow-[0_12px_40px_rgba(0,0,0,0.35)] grid place-items-center">
-                    <Icon className="h-5 w-5 text-white" />
+                  <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-[#800020] shadow-[0_12px_40px_rgba(0,0,0,0.35)] grid place-items-center shrink-0">
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                 </div>
 
-                <div className="mt-4 inline-flex items-center rounded-full bg-white/5 px-3 py-1 text-xs text-muted shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+                <div className="mt-3 sm:mt-4 inline-flex items-center rounded-full bg-white/5 px-2.5 py-1 text-[11px] sm:text-xs text-muted shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
                   {p.tag}
                 </div>
               </motion.div>

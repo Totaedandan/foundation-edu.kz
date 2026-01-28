@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useLang } from "@/components/lang";
 import { t } from "@/lib/i18n";
-import { Globe, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 
 const LINKS = [
   { id: "for", key: "nav_for" },
@@ -18,7 +18,14 @@ const LINKS = [
 function scrollToId(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
-  el.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  // если кликали из формы — blur помогает нормально вернуться наверх
+  (document.activeElement as HTMLElement | null)?.blur?.();
+
+  const headerOffset = 88; // подгони под свой navbar (примерно 72-96)
+  const y = el.getBoundingClientRect().top + window.scrollY - headerOffset;
+
+  window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
 }
 
 export function Navbar() {
@@ -33,21 +40,32 @@ export function Navbar() {
   }, []);
 
   return (
-    <div className={"fixed inset-x-0 top-0 z-50 transition " + (scrolled ? "backdrop-blur bg-black/20 shadow-[0_12px_40px_rgba(0,0,0,0.35)]" : "bg-transparent")}>
+    <div
+      className={
+        "fixed inset-x-0 top-0 z-50 transition " +
+        (scrolled
+          ? "backdrop-blur bg-black/20 shadow-[0_12px_40px_rgba(0,0,0,0.35)]"
+          : "bg-transparent")
+      }
+    >
       <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-3">
         <button onClick={() => scrollToId("top")} className="flex items-center gap-2 group">
-          <span className="inline-block h-9 w-9 rounded-2xl bg-white/10 grid place-items-center group-hover:bg-white/15 transition shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
-            <Globe className="h-5 w-5" />
-          </span>
-          <div className="leading-tight text-left hidden sm:block">
+          <span className="w-[2px] self-stretch rounded-full bg-white/70 group-hover:bg-white/90 transition" />
+          <div className="leading-tight text-left">
             <div className="font-semibold">Foundation</div>
-            <div className="text-xs text-muted">Your Gateway to Higher Education</div>
+            <div className="text-xs text-muted hidden sm:block">
+              Your Gateway to Higher Education
+            </div>
           </div>
         </button>
 
         <div className="hidden lg:flex items-center gap-5 text-sm">
           {LINKS.map((l) => (
-            <button key={l.id} className="text-muted hover:text-white transition" onClick={() => scrollToId(l.id)}>
+            <button
+              key={l.id}
+              className="text-muted hover:text-white transition"
+              onClick={() => scrollToId(l.id)}
+            >
               {t(lang, l.key)}
             </button>
           ))}
@@ -56,13 +74,19 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <div className="glass rounded-2xl overflow-hidden flex">
             <button
-              className={"px-3 py-2 text-sm transition " + (lang === "ru" ? "bg-white/10" : "text-muted hover:text-white")}
+              className={
+                "px-3 py-2 text-sm transition " +
+                (lang === "ru" ? "bg-white/10" : "text-muted hover:text-white")
+              }
               onClick={() => setLang("ru")}
             >
               RU
             </button>
             <button
-              className={"px-3 py-2 text-sm transition " + (lang === "kz" ? "bg-white/10" : "text-muted hover:text-white")}
+              className={
+                "px-3 py-2 text-sm transition " +
+                (lang === "kz" ? "bg-white/10" : "text-muted hover:text-white")
+              }
               onClick={() => setLang("kz")}
             >
               KZ

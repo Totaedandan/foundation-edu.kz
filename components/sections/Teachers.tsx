@@ -2,11 +2,11 @@
 
 import Image from "next/image";
 import { Reveal } from "@/components/Reveal";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLang } from "@/components/lang";
 import { t } from "@/lib/i18n";
-import { useEffect, useState } from "react";
-import { Play, X } from "lucide-react";
+import { X, Play } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 const TEAM = [
   {
@@ -44,7 +44,6 @@ const TEAM = [
   },
 ] as const;
 
-// ✅ Поменяй имена файлов под свои (public/videos/*)
 const VIDEOS = [
   { src: "/videos/team-1.mp4", label: "Видео 1" },
   { src: "/videos/team-2.mp4", label: "Видео 2" },
@@ -52,64 +51,86 @@ const VIDEOS = [
   { src: "/videos/team-4.mp4", label: "Видео 4" },
 ] as const;
 
+function useLockBodyScroll(locked: boolean) {
+  useEffect(() => {
+    if (!locked) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [locked]);
+}
+
 export function Teachers() {
   const { lang } = useLang();
-  const [active, setActive] = useState<string | null>(null);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
 
-  // Esc to close + lock scroll while modal open
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setActive(null);
-    };
-    window.addEventListener("keydown", onKey);
+  useLockBodyScroll(openIdx !== null);
 
-    if (active) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
-
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [active]);
+  const openVideo = useMemo(() => {
+    if (openIdx === null) return null;
+    return VIDEOS[openIdx] ?? null;
+  }, [openIdx]);
 
   return (
-    <section id="teachers" className="mx-auto max-w-6xl px-4 py-16">
+    <section id="teachers" className="relative mx-auto max-w-6xl px-4 py-12 sm:py-16">
+      {/* мягкий переход секции */}
+      <div className="pointer-events-none absolute inset-x-0 -top-1 h-16 bg-gradient-to-b from-[#040B1B] via-[#040B1B]/55 to-transparent blur-[1px]" />
+      <div className="pointer-events-none absolute inset-x-0 -bottom-1 h-16 bg-gradient-to-t from-[#040B1B] via-[#040B1B]/55 to-transparent blur-[1px]" />
+
       <Reveal>
-        <div className="text-2xl sm:text-3xl font-semibold">{t(lang, "teachers_title")}</div>
-        <div className="text-muted mt-2 max-w-2xl">
-          Преподаватели и менторы с опытом подготовки к поступлению и экзаменам. Подберём траекторию под ваш профиль.
+        <div className="text-2xl sm:text-3xl font-semibold">
+          {t(lang, "teachers_title")}
+        </div>
+        <div className="text-muted mt-2 max-w-2xl text-sm sm:text-base">
+          {lang === "kz"
+            ? "Оқытушылар мен менторлар: емтиханға және оқуға түсуге дайындық тәжірибесі бар команда."
+            : "Преподаватели и менторы с опытом подготовки к поступлению и экзаменам. Подберём траекторию под ваш профиль."}
         </div>
       </Reveal>
 
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      <div className="mt-6 sm:mt-8 grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
         <Reveal className="lg:col-span-7">
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4">
             {TEAM.map((m, idx) => (
-              <motion.div key={m.name} whileHover={{ y: -3 }} className="glass rounded-3xl p-6">
+              <motion.div
+                key={m.name}
+                whileHover={{ y: -2 }}
+                className="glass rounded-3xl p-4 sm:p-6"
+              >
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="relative h-12 w-12 rounded-full overflow-hidden bg-white/5 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
-                      {/* ✅ твоя правка: object-[50%_20%] */}
+                  <div className="flex items-start gap-3 sm:gap-4">
+                    <div className="relative h-14 w-14 sm:h-16 sm:w-16 rounded-full overflow-hidden bg-white/5 shadow-[0_12px_40px_rgba(0,0,0,0.35)] shrink-0">
                       <Image
                         src={m.avatar}
                         alt={m.name}
                         fill
+                        sizes="64px"
+                        priority={idx < 2}
                         className="object-cover object-[50%_20%]"
                       />
                     </div>
-
-                    <div>
-                      <div className="text-lg font-semibold">{m.name}</div>
-                      <div className="text-sm text-muted mt-1">{m.role}</div>
+                    <div className="min-w-0">
+                      <div className="text-base sm:text-lg font-semibold">
+                        {m.name}
+                      </div>
+                      <div className="text-sm text-muted mt-1">
+                        {m.role}
+                      </div>
                     </div>
                   </div>
-
-                  <div className="text-xs text-muted">{String(idx + 1).padStart(2, "0")}</div>
+                  <div className="text-xs text-muted shrink-0">
+                    0{idx + 1}
+                  </div>
                 </div>
 
+                {/* на мобилке режем список, чтобы карточки не были огромными */}
                 <ul className="mt-3 list-disc pl-5 text-sm text-muted space-y-1">
                   {m.points.map((p) => (
-                    <li key={p}>{p}</li>
+                    <li key={p} className="line-clamp-2 sm:line-clamp-none">
+                      {p}
+                    </li>
                   ))}
                 </ul>
               </motion.div>
@@ -118,84 +139,99 @@ export function Teachers() {
         </Reveal>
 
         <Reveal className="lg:col-span-5">
-          <div className="glass rounded-3xl p-5 overflow-hidden relative isolate">
-            <div className="text-sm font-semibold">Foundation — атмосфера и команда</div>
-            <div className="text-sm text-muted mt-1">Видео: формат занятий, аудитория, команда.</div>
+          <div className="glass rounded-3xl p-4 sm:p-5 overflow-hidden relative isolate">
+            <div className="text-sm font-semibold">
+              {lang === "kz"
+                ? "Foundation — атмосфера және команда"
+                : "Foundation — атмосфера и команда"}
+            </div>
+            <div className="text-sm text-muted mt-1">
+              {lang === "kz"
+                ? "Видео: формат сабақтар, аудитория, команда."
+                : "Видео: формат занятий, аудитория, команда."}
+            </div>
 
-            {/* ✅ ровно 4 видео */}
+            {/* на мобилке делаем более “плоские” превью, чтобы меньше высоты */}
             <div className="mt-4 grid grid-cols-2 gap-2">
               {VIDEOS.map((v, i) => (
                 <button
                   key={v.src}
-                  onClick={() => setActive(v.src)}
-                  className="group relative aspect-[3/4] rounded-2xl overflow-hidden bg-black/30 border border-white/10"
+                  onClick={() => setOpenIdx(i)}
+                  className="group relative aspect-[4/5] sm:aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 border border-white/8 hover:border-white/15 transition"
                 >
-                  {/* превью на паузе */}
                   <video
-                    src={v.src}
-                    muted
-                    playsInline
-                    preload="metadata"
                     className="h-full w-full object-cover"
-                  />
+                    preload="metadata"
+                    playsInline
+                    muted
+                  >
+                    <source src={v.src} type="video/mp4" />
+                  </video>
 
-                  {/* затемнение */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-black/10 opacity-90" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
 
-                  {/* кнопка */}
-                  <div className="absolute inset-0 grid place-items-center">
-                    <div className="flex items-center gap-2 rounded-full bg-black/45 px-4 py-2 text-sm text-white border border-white/15 backdrop-blur">
-                      <Play className="h-4 w-4" />
-                      Смотреть
-                    </div>
+                  <div className="absolute bottom-2 left-2 text-[11px] text-white/80">
+                    {v.label}
                   </div>
 
-                  <div className="absolute left-2 bottom-2 text-xs text-white/80">
-                    {v.label ?? `Видео ${i + 1}`}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-black/40 px-3 py-2 text-sm text-white backdrop-blur-sm border border-white/10 group-hover:bg-black/50 transition">
+                      <Play className="h-4 w-4" />
+                      {lang === "kz" ? "Көру" : "Смотреть"}
+                    </div>
                   </div>
                 </button>
               ))}
             </div>
 
-            <div className="pointer-events-none absolute -right-28 -top-28 -z-10 h-64 w-64 rounded-full bg-[#800020]/16 blur-3xl" />
-            <div className="pointer-events-none absolute -left-28 -bottom-28 -z-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+            <div className="pointer-events-none absolute -right-28 -top-28 -z-10 h-64 w-64 rounded-full bg-[#800020]/12 blur-3xl" />
+            <div className="pointer-events-none absolute -left-28 -bottom-28 -z-10 h-64 w-64 rounded-full bg-white/8 blur-3xl" />
           </div>
         </Reveal>
       </div>
 
-      {/* ✅ MODAL (крестик всегда виден) */}
-      {active && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
-          {/* фон */}
-          <button
-            aria-label="Закрыть"
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-            onClick={() => setActive(null)}
-          />
+      {/* Modal */}
+      <AnimatePresence>
+        {openVideo && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setOpenIdx(null)}
+          >
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
-          {/* окно */}
-          <div className="relative z-50 w-full max-w-[420px] sm:max-w-[520px]">
-            <button
-              onClick={() => setActive(null)}
-              className="absolute -top-3 -right-3 z-[60] h-11 w-11 rounded-full bg-black/70 hover:bg-black/85 text-white border border-white/15 grid place-items-center shadow-xl"
-              aria-label="Закрыть"
+            <motion.div
+              className="relative z-[101] w-full max-w-[920px] overflow-hidden rounded-3xl border border-white/10 bg-[#050B18] shadow-[0_30px_120px_rgba(0,0,0,0.7)]"
+              initial={{ scale: 0.98, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.98, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <X className="h-5 w-5" />
-            </button>
+              <button
+                onClick={() => setOpenIdx(null)}
+                className="absolute right-3 top-3 z-[102] inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/55 hover:bg-black/70 border border-white/15 text-white"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
 
-            <div className="rounded-3xl overflow-hidden border border-white/10 bg-black shadow-2xl">
-              <video
-                key={active}
-                src={active}
-                controls
-                autoPlay
-                playsInline
-                className="w-full h-[70vh] max-h-[720px] object-contain bg-black"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+              <div className="p-3 sm:p-4">
+                <video
+                  key={openVideo.src}
+                  controls
+                  autoPlay
+                  playsInline
+                  className="w-full rounded-2xl bg-black"
+                >
+                  <source src={openVideo.src} type="video/mp4" />
+                </video>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
