@@ -5,12 +5,66 @@ import { Reveal } from "@/components/Reveal";
 import { LeadForm } from "@/components/LeadForm";
 import { useLang } from "@/components/lang";
 import { t } from "@/lib/i18n";
+import { AnimatePresence, motion } from "framer-motion";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+
+const GALLERY = [
+  { src: "/images/p10_335_0941121d80.jpg", alt: "Gallery 1" },
+  { src: "/images/p9_318_5ba8126ab5.jpg", alt: "Gallery 2" },
+  { src: "/images/p7_258_0b94c9c2c1.jpg", alt: "Gallery 3" },
+
+  // ✅ +2 фото (пока дублирую первое, потом заменишь)
+  { src: "/images/IMG_1490.JPEG", alt: "Gallery 4" },
+  { src: "/images/IMG_5262.jpg", alt: "Gallery 5" },
+] as const;
+
+function useLockBodyScroll(locked: boolean) {
+  useEffect(() => {
+    if (!locked) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [locked]);
+}
 
 export function Hero() {
   const { lang } = useLang();
 
+  // ✅ Carousel state (for Foundation Gallery card)
+  const [slide, setSlide] = useState(0);
+
+  const prevSlide = () => setSlide((s) => (s + GALLERY.length - 1) % GALLERY.length);
+  const nextSlide = () => setSlide((s) => (s + 1) % GALLERY.length);
+
+  // lightbox
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const openItem = useMemo(() => {
+    if (openIdx === null) return null;
+    return GALLERY[openIdx] ?? null;
+  }, [openIdx]);
+
+  useLockBodyScroll(openIdx !== null);
+
+  useEffect(() => {
+    if (openIdx === null) return;
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenIdx(null);
+      if (e.key === "ArrowLeft")
+        setOpenIdx((i) => (i === null ? null : (i + GALLERY.length - 1) % GALLERY.length));
+      if (e.key === "ArrowRight")
+        setOpenIdx((i) => (i === null ? null : (i + 1) % GALLERY.length));
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [openIdx]);
+
   return (
-    <div className="relative overflow-hidden pt-16 sm:pt-20">
+    <div id="top" className="relative overflow-hidden pt-16 sm:pt-20">
       {/* background */}
       <div className="absolute inset-0 -z-10">
         <Image
@@ -50,13 +104,13 @@ export function Hero() {
         <div className="absolute right-1/4 top-1/3 h-[240px] w-[240px] sm:h-[260px] sm:w-[260px] rounded-full bg-[#800020]/10 blur-3xl" />
         <div className="absolute left-1/2 -bottom-56 h-[460px] w-[460px] sm:h-[520px] sm:w-[520px] -translate-x-1/2 rounded-full bg-[#800020]/08 blur-3xl" />
 
-        {/* мягкий “fade” снизу — чтобы не было резкой границы с следующей секцией */}
+        {/* мягкий “fade” снизу */}
         <div className="pointer-events-none absolute inset-x-0 -bottom-1 h-24 bg-gradient-to-b from-transparent via-[#040B1B]/55 to-[#040B1B] blur-[1px]" />
       </div>
 
       <main className="mx-auto max-w-6xl px-4 pb-8 sm:pb-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start pt-4 sm:pt-8">
-          {/* RIGHT (form) — first on mobile */}
+          {/* RIGHT (form) */}
           <div className="lg:col-span-5 lg:sticky lg:top-24 order-1 lg:order-2">
             <Reveal delay={0.08}>
               <LeadForm />
@@ -64,35 +118,90 @@ export function Hero() {
 
             <Reveal delay={0.18}>
               <div className="mt-3 sm:mt-4 relative glass rounded-3xl overflow-hidden p-4 sm:p-5">
-                <div className="text-[12px] sm:text-sm text-muted">
-                  {t(lang, "visual_note")}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-[12px] sm:text-sm text-muted">
+                    {t(lang, "visual_note")}
+                  </div>
+
+                  {/* маленький индикатор */}
+                  <div className="text-[11px] text-muted">
+                    {slide + 1}/{GALLERY.length}
+                  </div>
                 </div>
 
-                <div className="mt-3 grid grid-cols-3 gap-2">
-                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden">
+                {/* ✅ Carousel (one big frame + arrows) */}
+                <div className="mt-3 relative rounded-2xl overflow-hidden bg-white/5 border border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setOpenIdx(slide)}
+                    className="relative block w-full aspect-[16/10] sm:aspect-[16/9]"
+                    aria-label="Open gallery image"
+                  >
                     <Image
-                      src="/images/p10_335_0941121d80.jpg"
-                      alt=""
+                      key={GALLERY[slide].src + slide}
+                      src={GALLERY[slide].src}
+                      alt={GALLERY[slide].alt}
                       fill
+                      sizes="(max-width: 1024px) 90vw, 520px"
                       className="object-cover"
+                      priority
                     />
-                  </div>
-                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden">
-                    <Image
-                      src="/images/p9_318_5ba8126ab5.jpg"
-                      alt=""
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="relative aspect-[3/4] rounded-2xl overflow-hidden">
-                    <Image
-                      src="/images/p7_258_0b94c9c2c1.jpg"
-                      alt=""
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-black/0 to-transparent" />
+                    <div className="absolute bottom-2 left-2 text-[11px] text-white/85 bg-black/35 px-2 py-1 rounded-full backdrop-blur-sm border border-white/10">
+                      Foundation Gallery
+                    </div>
+                  </button>
+
+                  {/* arrows */}
+                  <button
+                    type="button"
+                    onClick={prevSlide}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/45 hover:bg-black/60 border border-white/10 text-white"
+                    aria-label="Previous photo"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={nextSlide}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/45 hover:bg-black/60 border border-white/10 text-white"
+                    aria-label="Next photo"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {/* ✅ optional thumbnails row (compact) */}
+                <div className="mt-3 grid grid-cols-5 gap-2">
+                  {GALLERY.slice(0, 5).map((g, idx) => {
+                    const active = idx === slide;
+                    return (
+                      <button
+                        key={g.alt + idx}
+                        type="button"
+                        onClick={() => setSlide(idx)}
+                        className={
+                          "relative aspect-[3/4] rounded-xl overflow-hidden border transition " +
+                          (active ? "border-white/35" : "border-white/10 hover:border-white/20")
+                        }
+                        aria-label={`Go to photo ${idx + 1}`}
+                      >
+                        <Image
+                          src={g.src}
+                          alt={g.alt}
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                        />
+                        <div
+                          className={
+                            "absolute inset-0 transition " + (active ? "bg-black/0" : "bg-black/25")
+                          }
+                        />
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <Image
@@ -106,17 +215,10 @@ export function Hero() {
             </Reveal>
           </div>
 
-          {/* LEFT (text) — second on mobile */}
+          {/* LEFT (text) */}
           <div className="lg:col-span-7 order-2 lg:order-1">
-            <Reveal>
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 text-[12px] sm:text-sm text-muted shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                Foundation • Your Gateway to Higher Education
-              </div>
-            </Reveal>
-
             <Reveal delay={0.05}>
-              <h1 className="mt-3 sm:mt-4 text-[28px] leading-[1.12] sm:text-5xl font-semibold">
+              <h1 className="mt-1 sm:mt-2 text-[28px] leading-[1.12] sm:text-5xl font-semibold">
                 {t(lang, "hero_title")}
               </h1>
             </Reveal>
@@ -127,99 +229,51 @@ export function Hero() {
               </p>
             </Reveal>
 
-            <Reveal delay={0.12}>
-              <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2">
-                <div className="accent inline-flex items-center gap-2 rounded-full px-3 py-1 text-[12px] sm:text-sm">
-                  <span className="inline-flex h-6 w-10 items-center justify-center rounded-md bg-[#800020] text-white font-bold text-[11px]">
-                    IELTS
-                  </span>
-                  <span className="text-[12px] sm:text-sm text-white">
-                    {t(lang, "hero_badge_1")}
-                  </span>
-                </div>
+            {/* BIG IELTS/UKVI + British Council card */}
+            <Reveal delay={0.16}>
+              <div className="mt-5 sm:mt-6">
+                <div className="glass rounded-3xl p-5 sm:p-6">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="text-lg sm:text-xl font-semibold">
+                        Официальный тестовый центр IELTS и UKVI
+                      </div>
+                      <div className="text-sm sm:text-base text-muted mt-1">
+                        {t(lang, "hero_card1_p")}
+                      </div>
+                    </div>
 
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-[12px] sm:text-sm text-muted shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
-                  {t(lang, "hero_badge_2")}
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.14}>
-              <div className="mt-4 sm:mt-5 flex flex-wrap items-center gap-2 sm:gap-3">
-                <div className="text-[11px] sm:text-xs text-muted">
-                  {lang === "kz" ? "ЖОО" : "Университеты"}:
-                </div>
-
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <Image
-                    src="/images/nu-logo.png"
-                    alt="NU"
-                    width={120}
-                    height={32}
-                    className="h-6 sm:h-7 w-auto opacity-80"
-                  />
-                  <Image
-                    src="/images/nus-logo-white-b-horizontal.png"
-                    alt="NUS"
-                    width={120}
-                    height={32}
-                    className="h-6 sm:h-7 w-auto opacity-80"
-                  />
-                  <Image
-                    src="/images/MIT-logo.png"
-                    alt="MIT"
-                    width={56}
-                    height={32}
-                    className="h-5 sm:h-6 w-auto opacity-75"
-                  />
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.15}>
-              <div className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="glass rounded-2xl p-3.5 sm:p-4">
-                  <div className="font-semibold">{t(lang, "hero_card1_t")}</div>
-                  <div className="text-sm text-muted mt-1 line-clamp-3 sm:line-clamp-none">
-                    {t(lang, "hero_card1_p")}
-                  </div>
-                </div>
-
-                <div className="glass rounded-2xl p-3.5 sm:p-4">
-                  <div className="font-semibold">{t(lang, "hero_card2_t")}</div>
-                  <div className="text-sm text-muted mt-1 line-clamp-3 sm:line-clamp-none">
-                    {t(lang, "hero_card2_p")}
+                    <div className="shrink-0 rounded-2xl bg-[#F5F5F5] p-3 sm:p-4 border border-[#B0B0B0]/35 shadow-[0_12px_40px_rgba(0,0,0,0.25)]">
+                      <img
+                        src="/logos/british-council.png"
+                        alt="British Council"
+                        className="h-12 sm:h-16 w-auto"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </Reveal>
 
-            <Reveal delay={0.2}>
-              <div id="for" className="mt-6 sm:mt-8 glass rounded-3xl p-4 sm:p-6">
-                <div className="text-lg sm:text-xl font-semibold">
-                  {t(lang, "for_title")}
-                </div>
+            {/* “Кому подходит” */}
+            <Reveal delay={0.22}>
+              <div id="for" className="mt-6 sm:mt-7 glass rounded-3xl p-4 sm:p-6">
+                <div className="text-lg sm:text-xl font-semibold">{t(lang, "for_title")}</div>
 
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 text-sm">
                   <div className="rounded-2xl bg-white/5 p-3.5 sm:p-4 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
                     <div className="font-semibold">{t(lang, "for_1_h")}</div>
-                    <div className="text-muted mt-1 line-clamp-3 sm:line-clamp-none">
-                      {t(lang, "for_1_p")}
-                    </div>
+                    <div className="text-muted mt-1 line-clamp-3 sm:line-clamp-none">{t(lang, "for_1_p")}</div>
                   </div>
 
                   <div className="rounded-2xl bg-white/5 p-3.5 sm:p-4 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
                     <div className="font-semibold">{t(lang, "for_2_h")}</div>
-                    <div className="text-muted mt-1 line-clamp-3 sm:line-clamp-none">
-                      {t(lang, "for_2_p")}
-                    </div>
+                    <div className="text-muted mt-1 line-clamp-3 sm:line-clamp-none">{t(lang, "for_2_p")}</div>
                   </div>
 
                   <div className="rounded-2xl bg-white/5 p-3.5 sm:p-4 shadow-[0_16px_50px_rgba(0,0,0,0.35)]">
                     <div className="font-semibold">{t(lang, "for_3_h")}</div>
-                    <div className="text-muted mt-1 line-clamp-3 sm:line-clamp-none">
-                      {t(lang, "for_3_p")}
-                    </div>
+                    <div className="text-muted mt-1 line-clamp-3 sm:line-clamp-none">{t(lang, "for_3_p")}</div>
                   </div>
                 </div>
               </div>
@@ -227,6 +281,70 @@ export function Hero() {
           </div>
         </div>
       </main>
+
+      {/* Lightbox modal */}
+      <AnimatePresence>
+        {openItem && (
+          <motion.div
+            className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setOpenIdx(null)}
+          >
+            <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
+
+            <motion.div
+              className="relative z-[121] w-full max-w-[980px] overflow-hidden rounded-3xl border border-white/10 bg-[#050B18] shadow-[0_30px_120px_rgba(0,0,0,0.7)]"
+              initial={{ scale: 0.985, y: 10 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.985, y: 10 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* close */}
+              <button
+                onClick={() => setOpenIdx(null)}
+                className="absolute right-3 top-3 z-[122] inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/55 hover:bg-black/70 border border-white/15 text-white"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+
+              {/* prev/next */}
+              <button
+                onClick={() =>
+                  setOpenIdx((i) => (i === null ? null : (i + GALLERY.length - 1) % GALLERY.length))
+                }
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-[122] inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/45 hover:bg-black/60 border border-white/10 text-white"
+                aria-label="Previous"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+
+              <button
+                onClick={() => setOpenIdx((i) => (i === null ? null : (i + 1) % GALLERY.length))}
+                className="absolute right-14 top-1/2 -translate-y-1/2 z-[122] inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/45 hover:bg-black/60 border border-white/10 text-white"
+                aria-label="Next"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+
+              <div className="p-3 sm:p-4">
+                <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-2xl overflow-hidden bg-black">
+                  <Image
+                    src={openItem.src}
+                    alt={openItem.alt}
+                    fill
+                    sizes="(max-width: 1024px) 95vw, 980px"
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

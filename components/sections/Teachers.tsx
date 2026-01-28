@@ -19,16 +19,10 @@ const TEAM = [
     ],
   },
   {
-    avatar: "/images/dinara.png",
-    name: "Динара Арыстанбек",
-    role: "Эксперт в сфере образования",
-    points: ["5+ лет опыта", "Профориентолог, IELTS тренер (BI Education)"],
-  },
-  {
     avatar: "/images/nurdaulet.png",
     name: "Нурдаулет Елубай, PhD",
-    role: "IELTS-эксперт",
-    points: ["Статистика (University of Milano-Bicocca)", "Опыт работы в British Council"],
+    role: "SAT & NUET эксперт",
+    points: ["Выпускник University of Milano-Bicocca", "5+ лет опыта в преподавании","Ex-сотрудник British Council"],
   },
   {
     avatar: "/images/erzhan.png",
@@ -40,7 +34,7 @@ const TEAM = [
     avatar: "/images/yulduz.png",
     name: "Юлдузхан Тургунова",
     role: "IELTS & General English Instructor",
-    points: ["Выпускница Nazarbayev University", "5 лет опыта преподавания"],
+    points: ["Выпускница Nazarbayev University", "Dean's List (Fall 2022, Spring 2023)", "Президент NU Turkish Club","5 лет опыта преподавания"],
   },
 ] as const;
 
@@ -75,14 +69,11 @@ export function Teachers() {
 
   return (
     <section id="teachers" className="relative mx-auto max-w-6xl px-4 py-12 sm:py-16">
-      {/* мягкий переход секции */}
       <div className="pointer-events-none absolute inset-x-0 -top-1 h-16 bg-gradient-to-b from-[#040B1B] via-[#040B1B]/55 to-transparent blur-[1px]" />
       <div className="pointer-events-none absolute inset-x-0 -bottom-1 h-16 bg-gradient-to-t from-[#040B1B] via-[#040B1B]/55 to-transparent blur-[1px]" />
 
       <Reveal>
-        <div className="text-2xl sm:text-3xl font-semibold">
-          {t(lang, "teachers_title")}
-        </div>
+        <div className="text-2xl sm:text-3xl font-semibold">{t(lang, "teachers_title")}</div>
         <div className="text-muted mt-2 max-w-2xl text-sm sm:text-base">
           {lang === "kz"
             ? "Оқытушылар мен менторлар: емтиханға және оқуға түсуге дайындық тәжірибесі бар команда."
@@ -101,31 +92,27 @@ export function Teachers() {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3 sm:gap-4">
-                    <div className="relative h-14 w-14 sm:h-16 sm:w-16 rounded-full overflow-hidden bg-white/5 shadow-[0_12px_40px_rgba(0,0,0,0.35)] shrink-0">
+                    {/* ✅ bigger avatars */}
+                    <div className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-full overflow-hidden bg-white/5 shadow-[0_12px_40px_rgba(0,0,0,0.35)] shrink-0">
                       <Image
                         src={m.avatar}
                         alt={m.name}
                         fill
-                        sizes="64px"
+                        sizes="(max-width: 640px) 64px, 80px"
                         priority={idx < 2}
-                        className="object-cover object-[50%_20%]"
+                        className="object-cover object-[50%_18%]"
                       />
                     </div>
+
                     <div className="min-w-0">
-                      <div className="text-base sm:text-lg font-semibold">
-                        {m.name}
-                      </div>
-                      <div className="text-sm text-muted mt-1">
-                        {m.role}
-                      </div>
+                      <div className="text-base sm:text-lg font-semibold">{m.name}</div>
+                      <div className="text-sm text-muted mt-1">{m.role}</div>
                     </div>
                   </div>
-                  <div className="text-xs text-muted shrink-0">
-                    0{idx + 1}
-                  </div>
+
+                  <div className="text-xs text-muted shrink-0">0{idx + 1}</div>
                 </div>
 
-                {/* на мобилке режем список, чтобы карточки не были огромными */}
                 <ul className="mt-3 list-disc pl-5 text-sm text-muted space-y-1">
                   {m.points.map((p) => (
                     <li key={p} className="line-clamp-2 sm:line-clamp-none">
@@ -141,17 +128,12 @@ export function Teachers() {
         <Reveal className="lg:col-span-5">
           <div className="glass rounded-3xl p-4 sm:p-5 overflow-hidden relative isolate">
             <div className="text-sm font-semibold">
-              {lang === "kz"
-                ? "Foundation — атмосфера және команда"
-                : "Foundation — атмосфера и команда"}
+              {lang === "kz" ? "Foundation — атмосфера және команда" : "Foundation — атмосфера и команда"}
             </div>
             <div className="text-sm text-muted mt-1">
-              {lang === "kz"
-                ? "Видео: формат сабақтар, аудитория, команда."
-                : "Видео: формат занятий, аудитория, команда."}
+              {lang === "kz" ? "Видео: формат сабақтар, аудитория, команда." : "Видео: формат занятий, аудитория, команда."}
             </div>
 
-            {/* на мобилке делаем более “плоские” превью, чтобы меньше высоты */}
             <div className="mt-4 grid grid-cols-2 gap-2">
               {VIDEOS.map((v, i) => (
                 <button
@@ -159,20 +141,12 @@ export function Teachers() {
                   onClick={() => setOpenIdx(i)}
                   className="group relative aspect-[4/5] sm:aspect-[3/4] rounded-2xl overflow-hidden bg-white/5 border border-white/8 hover:border-white/15 transition"
                 >
-                  <video
-                    className="h-full w-full object-cover"
-                    preload="metadata"
-                    playsInline
-                    muted
-                  >
+                  <video className="h-full w-full object-cover" preload="metadata" playsInline muted>
                     <source src={v.src} type="video/mp4" />
                   </video>
 
                   <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
-
-                  <div className="absolute bottom-2 left-2 text-[11px] text-white/80">
-                    {v.label}
-                  </div>
+                  <div className="absolute bottom-2 left-2 text-[11px] text-white/80">{v.label}</div>
 
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="inline-flex items-center gap-2 rounded-full bg-black/40 px-3 py-2 text-sm text-white backdrop-blur-sm border border-white/10 group-hover:bg-black/50 transition">
@@ -190,7 +164,6 @@ export function Teachers() {
         </Reveal>
       </div>
 
-      {/* Modal */}
       <AnimatePresence>
         {openVideo && (
           <motion.div
@@ -218,13 +191,7 @@ export function Teachers() {
               </button>
 
               <div className="p-3 sm:p-4">
-                <video
-                  key={openVideo.src}
-                  controls
-                  autoPlay
-                  playsInline
-                  className="w-full rounded-2xl bg-black"
-                >
+                <video key={openVideo.src} controls autoPlay playsInline className="w-full rounded-2xl bg-black">
                   <source src={openVideo.src} type="video/mp4" />
                 </video>
               </div>
