@@ -10,6 +10,16 @@ import { useEffect, useMemo, useState } from "react";
 
 const TEAM = [
   {
+    avatar: "/images/1.png",
+    name: "Алибек Акимбай",
+    role: "Директор",
+    points: [
+      "Эксперт с более 5-летним опытом в сфере образования и академического управления",
+      "Имеет опыт работы в Министерстве образования и науки РК",
+      "Выпускник Nazarbayev University и National University of Singapore",
+    ],
+  },
+  {
     avatar: "/images/alisher.png",
     name: "Алишер Тлеубаев, PhD",
     role: "Академический директор и SAT эксперт",
