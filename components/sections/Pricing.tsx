@@ -126,6 +126,9 @@ export function Pricing() {
                   lang === "kz"
                     ? "Поступление таймлайны"
                     : "Рекомендации по таймлайну поступления",
+                  lang === "kz"
+                    ? "Егжей-тегжейлі талдаумен Mock сынақтары"
+                    : "Mock-тесты с детальным разбором",
                 ].map((x) => (
                   <li key={x} className="flex items-start gap-2">
                     <Check className="h-4 w-4 text-emerald-300 mt-0.5 shrink-0" />
