@@ -7,7 +7,8 @@ import { pricing } from "@/lib/content";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 
-function formatKZT(v: number) {
+function formatKZT(v: number | null) {
+  if (v === null) return "Индивидуально";
   return v.toLocaleString("ru-RU") + " ₸";
 }
 
@@ -42,7 +43,9 @@ export function Pricing() {
               {/* header desktop */}
               <div className="hidden sm:grid grid-cols-2 px-4 py-3 rounded-2xl bg-white/6 text-sm text-muted shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
                 <div>{lang === "kz" ? "Қызмет" : "Услуга"}</div>
-                <div className="text-right">{lang === "kz" ? "Баға / ай" : "Цена / месяц"}</div>
+                <div className="text-right">
+                  {lang === "kz" ? "Баға / ай" : "Цена / месяц"}
+                </div>
               </div>
 
               {/* header mobile */}
@@ -58,7 +61,17 @@ export function Pricing() {
                   >
                     {/* desktop layout */}
                     <div className="hidden sm:grid grid-cols-2 items-center">
-                      <div className="font-medium">{p.title}</div>
+                      <div className="font-medium">
+                        {p.title}
+                        {p.price === null && (
+                          <div className="mt-1 text-xs text-muted">
+                            {lang === "kz"
+                              ? "Бағасы сабақ ұзақтығына байланысты жеке есептеледі"
+                              : "Стоимость рассчитывается индивидуально в зависимости от продолжительности занятия"}
+                          </div>
+                        )}
+                      </div>
+
                       <div className="text-right font-semibold">
                         {formatKZT(p.price)}
                       </div>
@@ -67,12 +80,21 @@ export function Pricing() {
                     {/* mobile layout (stacked) */}
                     <div className="sm:hidden">
                       <div className="font-medium">{p.title}</div>
-                      <div className="mt-1 text-sm text-muted">
-                        {lang === "kz" ? "Айына" : "В месяц"}:{" "}
-                        <span className="font-semibold text-white">
-                          {formatKZT(p.price)}
-                        </span>
-                      </div>
+
+                      {p.price === null ? (
+                        <div className="mt-1 text-sm text-muted">
+                          {lang === "kz"
+                            ? "Бағасы сабақ ұзақтығына байланысты жеке есептеледі"
+                            : "Стоимость рассчитывается индивидуально в зависимости от продолжительности занятия"}
+                        </div>
+                      ) : (
+                        <div className="mt-1 text-sm text-muted">
+                          {lang === "kz" ? "Айына" : "В месяц"}:{" "}
+                          <span className="font-semibold text-white">
+                            {formatKZT(p.price)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -92,10 +114,18 @@ export function Pricing() {
 
               <ul className="mt-3 space-y-2 text-sm text-muted">
                 {[
-                  lang === "kz" ? "Диагностика және жоспар" : "Диагностика и план",
-                  lang === "kz" ? "12 сағат/ай сабақ" : "Занятия 12 часов/мес",
-                  lang === "kz" ? "Үй жұмысы және тексеру" : "Домашние задания и проверка",
-                  lang === "kz" ? "Поступление таймлайны" : "Рекомендации по таймлайну поступления",
+                  lang === "kz"
+                    ? "Диагностика және жоспар"
+                    : "Диагностика и план",
+                  lang === "kz"
+                    ? "12–18 сағат/ай сабақ"
+                    : "Занятия 12–18 часов/мес",
+                  lang === "kz"
+                    ? "Үй жұмысы және тексеру"
+                    : "Домашние задания и проверка",
+                  lang === "kz"
+                    ? "Поступление таймлайны"
+                    : "Рекомендации по таймлайну поступления",
                 ].map((x) => (
                   <li key={x} className="flex items-start gap-2">
                     <Check className="h-4 w-4 text-emerald-300 mt-0.5 shrink-0" />
@@ -106,7 +136,9 @@ export function Pricing() {
 
               <button
                 onClick={() =>
-                  document.getElementById("lead-form")?.scrollIntoView({ behavior: "smooth" })
+                  document
+                    .getElementById("lead-form")
+                    ?.scrollIntoView({ behavior: "smooth" })
                 }
                 className="mt-5 w-full rounded-2xl bg-[#800020] hover:bg-[#6a001b] px-4 py-3 font-semibold transition shadow-lg shadow-black/20"
               >
