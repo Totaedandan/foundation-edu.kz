@@ -3,51 +3,35 @@
 export const programs = [
   {
     id: "ielts",
-    title: "IELTS / UKVI",
-    desc: "Подготовка к IELTS и UKVI + возможность сдачи теста в официальном центре.",
+    title: "Pre-IELTS / IELTS Standard",
+    desc: "Подготовка к IELTS: база и стандартная программа, практика и разбор ошибок.",
     tag: "English",
   },
   {
-    id: "sat",
-    title: "SAT (Math / Verbal)",
-    desc: "Системная подготовка к SAT: математика и verbal, практика и разбор ошибок.",
+    id: "ielts-intensive",
+    title: "IELTS Intensive",
+    desc: "Интенсивная подготовка к IELTS с увеличенным объёмом практики и домашних заданий.",
+    tag: "English",
+  },
+  {
+    id: "sat-intensive",
+    title: "SAT Intensive",
+    desc: "Интенсивная подготовка к SAT (Math / Verbal): практика, стратегия и разбор ошибок.",
     tag: "Tests",
   },
   {
-    id: "ap",
-    title: "AP",
-    desc: "Подготовка к AP по ключевым предметам — под ваши цели и вузы.",
-    tag: "Academics",
-  },
-  {
-    id: "research",
-    title: "Research course",
-    desc: "Научное портфолио: от темы и метода до оформления по требованиям вузов.",
-    tag: "Portfolio",
-  },
-  {
-    id: "counseling",
-    title: "Career & College Counseling",
-    desc: "Стратегия поступления, выбор вузов, дедлайны, эссе и сопровождение.",
-    tag: "Strategy",
-  },
-  {
-    id: "english",
-    title: "General / Pre-courses",
-    desc: "General English, Pre-IELTS, Pre-SAT — чтобы закрыть пробелы и ускориться.",
-    tag: "Base",
+    id: "individual",
+    title: "Индивидуальные уроки",
+    desc: "Стоимость рассчитывается индивидуально в зависимости от продолжительности занятия.",
+    tag: "1:1",
   },
 ] as const;
 
 export const pricing = [
-  { id: "general", title: "General English", price: 39500 },
-  { id: "pre-ielts", title: "Pre-IELTS", price: 49500 },
-  { id: "pre-sat-math", title: "Pre-SAT Math", price: 49500 },
-  { id: "pre-sat-verbal", title: "Pre-SAT Verbal", price: 49500 },
-  { id: "ielts", title: "IELTS", price: 59500 },
-  { id: "sat-math", title: "SAT Math", price: 59500 },
-  { id: "sat-verbal", title: "SAT Verbal", price: 59500 },
-  { id: "research", title: "Курс по научным исследованиям", price: 59500 },
+  { id: "ielts-standard", title: "Pre-IELTS / IELTS Standard", price: 49500, hours: 12 },
+  { id: "ielts-intensive", title: "IELTS Intensive", price: 64500, hours: 18 },
+  { id: "sat-intensive", title: "SAT Intensive", price: 69500, hours: 18 },
+  { id: "individual", title: "Индивидуальные уроки", price: null },
 ] as const;
 
 export const teachers = [
