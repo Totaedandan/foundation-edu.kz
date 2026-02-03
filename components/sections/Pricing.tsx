@@ -33,25 +33,12 @@ export function Pricing() {
           <div className="text-2xl sm:text-3xl font-semibold">
             {t(lang, "pricing_title")}
           </div>
-          <div className="text-muted mt-2">{t(lang, "pricing_sub")}</div>
         </Reveal>
 
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
           {/* table */}
           <Reveal className="lg:col-span-2">
             <div className="glass rounded-3xl p-3 sm:p-4">
-              {/* header desktop */}
-              <div className="hidden sm:grid grid-cols-2 px-4 py-3 rounded-2xl bg-white/6 text-sm text-muted shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
-                <div>{lang === "kz" ? "Қызмет" : "Услуга"}</div>
-                <div className="text-right">
-                  {lang === "kz" ? "Баға / ай" : "Цена / месяц"}
-                </div>
-              </div>
-
-              {/* header mobile */}
-              <div className="sm:hidden px-4 py-3 rounded-2xl bg-white/6 text-sm text-muted shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
-                {lang === "kz" ? "Бағалар (айына)" : "Цены (за месяц)"}
-              </div>
 
               <div className="mt-3 space-y-2">
                 {pricing.map((p) => (
