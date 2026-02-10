@@ -21,7 +21,7 @@ const TEAM = [
   {
     avatar: "/images/alisher.png",
     name: "Алишер Тлеубаев, PhD",
-    role: "Академический директор и SAT эксперт",
+    role: "SAT тренер",
     points: [
       "Двукратный обладатель стипендии «Болашак», DAAD и CERGE-EI Fellowship",
       "PhD (Германия), MSc (UK), опыт преподавания и research",
