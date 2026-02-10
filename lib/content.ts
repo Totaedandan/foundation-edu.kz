@@ -19,6 +19,15 @@ export const programs = [
     desc: "Интенсивная подготовка к SAT (Math / Verbal): практика, стратегия и разбор ошибок.",
     tag: "Tests",
   },
+
+  // ✅ NEW
+  {
+    id: "nuet-prep",
+    title: "NUET подготовка",
+    desc: "Подготовка к NUET: стратегия, практика по разделам и разбор ошибок.",
+    tag: "Tests",
+  },
+
   {
     id: "individual",
     title: "Индивидуальные уроки",
@@ -31,8 +40,13 @@ export const pricing = [
   { id: "ielts-standard", title: "Pre-IELTS / IELTS Standard", price: 49500, hours: 12 },
   { id: "ielts-intensive", title: "IELTS Intensive", price: 64500, hours: 18 },
   { id: "sat-intensive", title: "SAT Intensive", price: 69500, hours: 18 },
+
+  // ✅ NEW
+  { id: "nuet-prep", title: "NUET подготовка", price: 59500, hours: 18 },
+
   { id: "individual", title: "Индивидуальные уроки", price: null },
 ] as const;
+
 
 export const teachers = [
   {
